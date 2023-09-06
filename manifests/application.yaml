@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: website
+  namespace: openshift-gitops
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+    argocd-image-updater.argoproj.io/image-list: frontend=docker.io/cengleby86/test-image
+    argocd-image-updater.argoproj.io/frontend.force-update: "true"
+    argocd-image-updater.argoproj.io/frontend.pull-secret: pullsecret:openshift-gitops/test-dockerhub-secret
+    argocd-image-updater.argoproj.io/write-back-method: git:secret:openshift-gitops/public-website-example
+    argocd-image-updater.argoproj.io/git-branch: autoupdate
+    argocd-image-updater.argoproj.io/write-back-target: kustomization
+  labels:
+    name: website-test-image
+spec:
+  destination:
+    namespace: test-image-ns
+    server: 'https://kubernetes.default.svc'
+  source:
+    repoURL: 'https://github.com/poc-examples/openshift-website-manifests'
+    path: 'kustomization/overlays/sandbox'
+    version: v3
+    targetRevision: HEAD
+  project: default
+  syncPolicy:
+    managedNamespaceMetadata:
+      labels:
+        argocd.argoproj.io/managed-by: openshift-gitops
+    syncOptions:
+      - CreateNamespace=true
+    automated:
+      prune: true
+      selfHeal: false
