@@ -1,0 +1,21 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: public-website-example
+  namespace: openshift-gitops
+  labels:
+    argocd.argoproj.io/secret-type: repository
+stringData:
+  url: https://github.com/poc-examples/openshift-website-manifests
+  password: <git-pass>
+  username: <git-user>
+---
+apiVersion: v1
+data:
+  .dockerconfigjson: <base64encoded-pullsecret>
+kind: Secret
+metadata:
+  name: dockerhub-secret
+  namespace: openshift-gitops
+type: kubernetes.io/dockerconfigjson
